@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – HarvestHaul{% endblock %}
+{% block content %}
+<div class="dash-wrap">
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title">Good to see you, {{ user_name }} 👋</h1>
+      <p class="dash-role">Role: <span class="badge badge-{{ role }}">{{ role.upper() }}</span>
+        {% if llm_available %}<span class="ai-badge">AI Assistant Active</span>{% endif %}
+      </p>
+    </div>
+    <div class="dash-actions">
+      {% if role == 'donor' %}
+        <a href="{{ url_for('add_listing') }}" class="btn btn-primary">+ Add food listing</a>
+      {% elif role == 'ngo' %}
+        <a href="{{ url_for('add_demand') }}" class="btn btn-primary">+ Register need</a>
+      {% endif %}
+      <a href="{{ url_for('register_driver') }}" class="btn btn-outline">🚗 Volunteer as driver</a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="dash-stats">
+    <div class="stat-card"><div class="stat-big">{{ stats.total_listings }}</div><div class="stat-lbl">Total Listings</div></div>
+    <div class="stat-card"><div class="stat-big">{{ stats.active_matches }}</div><div class="stat-lbl">Active Rescues</div></div>
+    <div class="stat-card"><div class="stat-big">{{ "%.0f"|format(stats.kg_rescued) }} kg</div><div class="stat-lbl">Food Rescued</div></div>
+    <div class="stat-card"><div class="stat-big">{{ stats.ngos_served }}</div><div class="stat-lbl">NGOs Served</div></div>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- Active Matches (Logistics Agent Output) -->
+    <div class="dash-panel panel-wide">
+      <div class="panel-head">
+        <h2>⚡ Active Rescues <span class="agent-label">Logistics Agent</span></h2>
+        <button class="btn btn-sm btn-outline" onclick="runAgent()">Run Agent Now</button>
+      </div>
+      {% if matches %}
+        <div class="match-list">
+        {% for m in matches %}
+          <div class="match-card">
+            <div class="match-food">{{ m.food_type }} · {{ m.quantity }} {{ m.unit }}</div>
+            <div class="match-route">
+              <span class="loc-pill pickup">📦 {{ m.pickup_location }}</span>
+              <span class="arrow">→</span>
+              <span class="loc-pill dropoff">🏠 {{ m.dropoff_location }}</span>
+            </div>
+            <div class="match-meta">
+              <span>Donor: {{ m.donor_name }}</span>
+              <span>NGO: {{ m.ngo_name }}</span>
+              <span>Driver: {{ m.driver }}</span>
+              <span class="badge badge-active">{{ m.status }}</span>
+            </div>
+            <div class="match-scores">
+              <span>NGO score: <strong>{{ m.get('ngo_score', '-') }}</strong></span>
+              <span>Driver score: <strong>{{ m.get('driver_score', '-') }}</strong></span>
+              <span>Distance: <strong>{{ m.get('distance_km', '-') }} km</strong></span>
+              <span>Spoilage risk: <strong>{{ m.get('spoilage_risk', '-') }}</strong></span>
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">No active rescues yet. Add a listing or register a need to trigger the agent.</div>
+      {% endif %}
+    </div>
+    <!-- Left column -->
+    <div class="dash-col">
+      <!-- Supplier Agent -->
+      <div class="dash-panel">
+        <div class="panel-head">
+          <h2>📦 Food Listings <span class="agent-label">Supplier Agent</span></h2>
+          <a href="{{ url_for('add_listing') }}" class="btn btn-sm btn-primary">+ Add</a>
+        </div>
+        {% if listings %}
+          <ul class="item-list">
+          {% for l in listings[:6] %}
+            <li class="item-row">
+              <div class="item-info">
+                <strong>{{ l.food_type }}</strong>
+                <span>{{ l.quantity }} {{ l.unit }} · {{ l.location }}</span>
+                <span>Expires in {{ l.expiry_hours }}h</span>
+              </div>
+              <span class="badge badge-{{ l.status }}">{{ l.status }}</span>
+            </li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">No food listings yet.</div>
+        {% endif %}
+      </div>
+
+    <!-- Right column: Impact metrics -->
+    <div>
+      <div class="dash-panel">
+        <div class="panel-head">
+          <h2>📊 Impact Metrics</h2>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          <div class="stat-card"><div class="stat-big">{{ impact.kg_rescued|float|round(1) }}</div><div class="stat-lbl">Kg Rescued</div></div>
+          <div class="stat-card"><div class="stat-big">{{ impact.meals_served }}</div><div class="stat-lbl">Meals Served</div></div>
+          <div class="stat-card"><div class="stat-big">{{ impact.co2_saved|float|round(1) }} kg</div><div class="stat-lbl">CO₂ Saved</div></div>
+          <div class="stat-card"><div class="stat-big">{{ impact.ngos_served }}</div><div class="stat-lbl">NGOs Served</div></div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Demand Agent -->
+      <div class="dash-panel">
+        <div class="panel-head">
+          <h2>🏠 NGO Needs <span class="agent-label">Demand Agent</span></h2>
+          <a href="{{ url_for('add_demand') }}" class="btn btn-sm btn-outline">+ Register</a>
+        </div>
+        {% if demands %}
+          <ul class="item-list">
+          {% for d in demands[:6] %}
+            <li class="item-row">
+              <div class="item-info">
+                <strong>{{ d.ngo_name }}</strong>
+                <span>{{ d.location }} · Capacity: {{ d.capacity_kg }} kg</span>
+                <span>{{ d.food_types | join(', ') }}</span>
+              </div>
+              <span class="badge badge-{{ d.status }}">{{ d.status }}</span>
+            </li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">No demands registered yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div><!-- /dash-grid -->
+</div>
+
+<script>
+async function runAgent() {
+  const btn = event.target;
+  btn.textContent = "Running…";
+  btn.disabled = true;
+  const r = await fetch("/api/run-agent", {method:"POST"});
+  const d = await r.json();
+  btn.textContent = "✓ Done";
+  setTimeout(()=>location.reload(), 800);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,4 @@
+Flask>=2.0
+geopy>=2.3
+google-genai>=1.0
+python-dotenv>=1.0

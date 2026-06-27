@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Log in – HarvestHaul{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">🌿</div>
+    <h1 class="auth-heading">Welcome back</h1>
+    <p class="auth-sub">Sign in to your HarvestHaul account</p>
+    <form method="POST" class="auth-form">
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" name="email" placeholder="you@example.com" required autofocus>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Sign in</button>
+    </form>
+    <p class="auth-foot">Don't have an account? <a href="{{ url_for('register') }}">Create one</a></p>
+  </div>
+</div>
+{% endblock %}

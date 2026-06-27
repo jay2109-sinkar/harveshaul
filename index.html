@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}HarvestHaul – Reduce Food Waste, Feed Communities{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-text">
+    <h1 class="hero-heading">Reduce Food<br><span class="gradient-word">Waste</span>, Feed<br>Communities</h1>
+    <p class="hero-sub">HarvestHaul connects food donors with NGOs through intelligent multi-agent coordination — rescuing surplus food before it spoils and routing it to those who need it most. Now powered by Gemini AI.</p>
+    <div class="hero-ctas">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Open Dashboard</a>
+      <a href="{{ url_for('add_listing') }}" class="btn btn-outline btn-lg">Create a Listing</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <svg class="leaf-icon" viewBox="0 0 120 120" fill="none">
+      <path d="M60 10 C20 20, 10 60, 30 90 C50 115, 90 110, 105 80 C120 50, 100 15, 60 10Z" stroke-width="3.5"/>
+      <path d="M60 10 Q60 60 30 90" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <span class="hero-card-label">AI-Powered Food Rescue</span>
+  </div>
+</section>
+
+<!-- Stats strip -->
+<div class="stats-strip">
+  <div class="stat"><span class="stat-num" id="s-listings">—</span><span class="stat-label">Listings</span></div>
+  <div class="stat"><span class="stat-num" id="s-matched">—</span><span class="stat-label">Matched</span></div>
+  <div class="stat"><span class="stat-num" id="s-rescued">—</span><span class="stat-label">Kg Rescued</span></div>
+  <div class="stat"><span class="stat-num" id="s-active">—</span><span class="stat-label">Active Rescues</span></div>
+</div>
+
+<!-- How it works -->
+<section class="section">
+  <div class="section-inner">
+    <p class="eyebrow">Multi-Agent Architecture</p>
+    <h2 class="section-heading">Agents working for good</h2>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <div class="agent-icon">📦</div>
+        <h3>Supplier Agent</h3>
+        <p>Integrates with restaurant, supermarket, and farm inventory. Accepts surplus listings via a simple web interface — food type, quantity, and expiry window.</p>
+        <div class="agent-tag">Donors · Farms</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🏠</div>
+        <h3>Demand Agent</h3>
+        <p>Monitors food banks, shelters, and community kitchens in real time. Tracks capacity, dietary restrictions, and current shortages to build a live need map.</p>
+        <div class="agent-tag">NGOs · Shelters</div>
+      </div>
+      <div class="agent-card agent-card-highlight">
+        <div class="agent-icon">⚡</div>
+        <h3>Logistics Agent</h3>
+        <p>The matchmaker. Calculates distance vs expiry windows, pairs surplus with need, and coordinates volunteer drivers — automatically. Before anything spoils.</p>
+        <div class="agent-tag">Route Optimization</div>
+      </div>
+      <div class="agent-card agent-card-highlight" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center;">
+        <div>
+          <div class="agent-icon">🤖</div>
+          <h3>Gemini AI Assistant</h3>
+          <div class="agent-tag">Natural Language · MCP Tools</div>
+        </div>
+        <p style="margin: 0; font-size: 1rem;">Our new conversational AI allows you to interact with the platform using plain English. Simply say "I have 50kg of tomatoes to donate" and the AI will automatically invoke the right tools to create listings, trigger the matchmaker, and provide real-time impact metrics.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA band -->
+<section class="cta-band">
+  <h2>Ready to rescue food?</h2>
+  <p>Register in under 2 minutes. Our agents do the rest.</p>
+  <div class="hero-ctas" style="justify-content:center">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Open Dashboard</a>
+    <a href="{{ url_for('add_demand') }}" class="btn btn-outline-white btn-lg">Add a Demand</a>
+  </div>
+</section>
+
+<script>
+fetch("/api/stats").then(r=>r.json()).then(d=>{
+  document.getElementById("s-listings").textContent = d.total_listings;
+  document.getElementById("s-matched").textContent = d.matched;
+  document.getElementById("s-rescued").textContent = d.kg_rescued.toFixed(0) + " kg";
+  document.getElementById("s-active").textContent = d.active_rescues;
+});
+</script>
+{% endblock %}

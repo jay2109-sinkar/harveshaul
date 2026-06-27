@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Register – HarvestHaul{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card auth-card-wide">
+    <div class="auth-logo">🌿</div>
+    <h1 class="auth-heading">Create your account</h1>
+    <p class="auth-sub">Join the food rescue network</p>
+
+    <div class="role-tabs">
+      <button class="role-tab active" data-role="donor" onclick="selectRole('donor',this)">🍎 Food Donor</button>
+      <button class="role-tab" data-role="ngo" onclick="selectRole('ngo',this)">🏠 NGO / Shelter</button>
+      <button class="role-tab" data-role="driver" onclick="selectRole('driver',this)">🚗 Volunteer Driver</button>
+    </div>
+
+    <form method="POST" class="auth-form">
+      <input type="hidden" name="role" id="role-field" value="donor">
+      <div class="field-row">
+        <div class="field">
+          <label>Full name</label>
+          <input type="text" name="name" placeholder="Alex Johnson" required>
+        </div>
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Organisation / Farm name <span class="opt">(optional)</span></label>
+          <input type="text" name="org" placeholder="Baker's Farm">
+        </div>
+        <div class="field">
+          <label>City / Area</label>
+          <input type="text" name="location" placeholder="Mumbai, Maharashtra" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Minimum 8 characters" required minlength="8">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Create account</button>
+    </form>
+    <p class="auth-foot">Ready to start rescuing food? <a href="{{ url_for('dashboard') }}">Open the dashboard</a></p>
+  </div>
+</div>
+<script>
+function selectRole(role, el) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('role-field').value = role;
+}
+const params = new URLSearchParams(location.search);
+const preRole = params.get('role');
+if (preRole) {
+  const tab = document.querySelector('[data-role="' + preRole + '"]');
+  if (tab) selectRole(preRole, tab);
+}
+</script>
+{% endblock %}

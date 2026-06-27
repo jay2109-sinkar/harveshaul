@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="HarvestHaul — AI-powered food rescue platform connecting surplus food donors with NGOs through intelligent multi-agent coordination.">
+<title>{% block title %}HarvestHaul{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{{ url_for('index') }}" class="nav-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+        <path d="M8 12s1.5-3 4-3 4 3 4 3-1.5 3-4 3-4-3-4-3z"/>
+        <path d="M12 9v6M9 12h6" opacity=".4"/>
+      </svg>
+      HarvestHaul
+    </a>
+    <div class="nav-links">
+      <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+      <a href="{{ url_for('add_listing') }}" class="nav-link">Add listing</a>
+      <a href="{{ url_for('add_demand') }}" class="nav-link">Add demand</a>
+      <span class="ai-badge">AI Powered</span>
+    </div>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, msg in messages %}
+    <div class="flash flash-{{ category }}">{{ msg }}</div>
+  {% endfor %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<!-- AI Chat Widget -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Open AI Chat Assistant">
+  <svg class="chat-icon" viewBox="0 0 24 24">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <path d="M8 10h.01M12 10h.01M16 10h.01" stroke-width="3"/>
+  </svg>
+  <svg class="close-icon" viewBox="0 0 24 24">
+    <path d="M18 6L6 18M6 6l12 12"/>
+  </svg>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-header-info">
+      <h3>HarvestHaul AI</h3>
+      <p><span class="online-dot"></span> Online — Ready to help</p>
+    </div>
+  </div>
+  <div class="chat-quick-actions" id="chatQuickActions">
+    <button class="chat-quick-btn" onclick="sendQuick('Show dashboard stats')">📊 Stats</button>
+    <button class="chat-quick-btn" onclick="sendQuick('What food is available?')">📦 Available food</button>
+    <button class="chat-quick-btn" onclick="sendQuick('Show impact report')">🌍 Impact</button>
+    <button class="chat-quick-btn" onclick="sendQuick('Run the matchmaker')">⚡ Match</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg ai">
+      <div class="bubble">👋 Hi! I'm the HarvestHaul AI assistant. I can help you list surplus food, register needs, run the matchmaker, or check platform stats. What would you like to do?</div>
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask me anything…" rows="1" onkeydown="handleChatKey(event)"></textarea>
+    <button class="chat-send" id="chatSendBtn" onclick="sendMessage()" aria-label="Send message">
+      <svg viewBox="0 0 24 24">
+        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span class="nav-logo">🌿 HarvestHaul</span>
+    <p>Connecting surplus food with communities that need it most.</p>
+    <p style="opacity:.5;font-size:.78rem;margin-top:.5rem;">© 2024 HarvestHaul · Built for people, powered by AI agents</p>
+  </div>
+</footer>
+
+<script>
+// ── Chat Widget Logic ───────────────────────────────────────────
+const chatFab = document.getElementById('chatFab');
+const chatPanel = document.getElementById('chatPanel');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSendBtn = document.getElementById('chatSendBtn');
+let chatOpen = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  chatFab.classList.toggle('open', chatOpen);
+  chatPanel.classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    setTimeout(() => chatInput.focus(), 350);
+  }
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function sendQuick(text) {
+  chatInput.value = text;
+  sendMessage();
+}
+
+function scrollToBottom() {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addMessage(text, role) {
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  // Simple markdown-like formatting for AI responses
+  let formattedText = text;
+  if (role === 'ai') {
+    formattedText = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  }
+  
+  div.innerHTML = `
+    <div class="bubble">${formattedText}</div>
+    <div class="timestamp">${timeStr}</div>
+  `;
+  chatMessages.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'typing-indicator';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  chatMessages.appendChild(div);
+  scrollToBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  chatSendBtn.disabled = true;
+  
+  addMessage(text, 'user');
+  showTyping();
+  
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    
+    hideTyping();
+    const data = await res.json();
+    
+    if (data.success) {
+      addMessage(data.reply, 'ai');
+    } else {
+      addMessage(data.reply || '⚠️ Something went wrong. Please try again.', 'ai');
+    }
+  } catch (err) {
+    hideTyping();
+    addMessage('⚠️ Connection error. Please check if the server is running.', 'ai');
+  }
+  
+  chatSendBtn.disabled = false;
+  chatInput.focus();
+}
+
+// Auto-resize textarea
+chatInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+// Load chat history on page load
+async function loadChatHistory() {
+  try {
+    const res = await fetch('/api/chat/history');
+    const data = await res.json();
+    if (data.success && data.history.length > 0) {
+      // Clear default greeting if we have history
+      chatMessages.innerHTML = '';
+      data.history.forEach(h => {
+        addMessage(h.user_message, 'user');
+        addMessage(h.ai_reply, 'ai');
+      });
+    }
+  } catch(e) {
+    // Silently fail — greeting message stays
+  }
+}
+loadChatHistory();
+</script>
+</body>
+</html>

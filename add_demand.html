@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Register Need – HarvestHaul{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <div class="form-card">
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Back to dashboard</a>
+    <h1 class="form-heading">🏠 Register your need</h1>
+    <p class="form-sub">Tell our Demand Agent what your shelter or food bank needs right now.</p>
+    <form method="POST" class="auth-form">
+      <div class="field">
+        <label>Location</label>
+        <input type="text" name="location" placeholder="Address or area of your facility" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Capacity (kg you can accept)</label>
+          <input type="number" name="capacity_kg" placeholder="200" min="1" required>
+        </div>
+        <div class="field">
+          <label>People served daily</label>
+          <input type="number" name="people_served" placeholder="120" min="1">
+        </div>
+      </div>
+      <div class="field">
+        <label>Food types accepted (select all that apply)</label>
+        <div class="checkbox-grid">
+          {% for ft in ["Vegetables","Fruits","Bread & Bakery","Rice & Grains","Dairy","Cooked Meals","Canned Goods","Meat","Eggs"] %}
+          <label class="check-label">
+            <input type="checkbox" name="food_types" value="{{ ft }}"> {{ ft }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes <span class="opt">(optional)</span></label>
+        <textarea name="notes" rows="2" placeholder="Dietary restrictions, storage capacity, operating hours…"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Register need</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
