@@ -1,0 +1,45 @@
+[
+  {
+    "id": "120af197-1843-4025-9fe3-5c01f788a7b4",
+    "ngo_id": "270ac7a5-09e3-4d35-9397-2b4da6fc3fc2",
+    "ngo_name": "alex",
+    "food_types": [
+      "Vegetables"
+    ],
+    "capacity_kg": 100.0,
+    "location": "gav",
+    "people_served": 129,
+    "notes": "",
+    "status": "open",
+    "created": "2026-06-24T20:02:13.460516"
+  },
+  {
+    "id": "2c82009f-dcbe-4e71-8261-059de0cbe0a3",
+    "ngo_id": "guest-user",
+    "ngo_name": "Guest User",
+    "food_types": [
+      "Vegetables",
+      "Dairy"
+    ],
+    "capacity_kg": 12.0,
+    "location": "near bank",
+    "people_served": 120,
+    "notes": "",
+    "status": "open",
+    "created": "2026-06-26T19:41:41.867197"
+  },
+  {
+    "id": "c003da23-b6b4-42cf-b1ca-87061d30cb86",
+    "ngo_id": "guest-user",
+    "ngo_name": "Guest User",
+    "food_types": [
+      "Fruits"
+    ],
+    "capacity_kg": 120.0,
+    "location": "near austin's farm",
+    "people_served": 120,
+    "notes": "",
+    "status": "open",
+    "created": "2026-06-27T16:10:43.563397"
+  }
+]

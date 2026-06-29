@@ -1,0 +1,12 @@
+{
+  "alex@gmail.com": {
+    "id": "270ac7a5-09e3-4d35-9397-2b4da6fc3fc2",
+    "name": "alex",
+    "email": "alex@gmail.com",
+    "password": "e44703cfb54d35cb11ee31e3a91c872edfa3e5d5578197ad89fca630df04dfdb",
+    "role": "donor",
+    "org": "Baker farm",
+    "location": "gav",
+    "joined": "2026-06-24T19:50:18.312772"
+  }
+}
